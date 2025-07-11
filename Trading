@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DavsAI - Fremtidens Automatiserede Handel</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #020617; /* slate-950 */
+            color: #e2e8f0; /* slate-200 */
+        }
+        .gradient-text {
+            background: linear-gradient(90deg, #2dd4bf, #38bdf8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .cta-button {
+            background-color: #14b8a6; /* teal-500 */
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+        .cta-button:hover {
+            background-color: #0d9488; /* teal-600 */
+            transform: translateY(-2px);
+        }
+        .secondary-button {
+            background-color: transparent;
+            border: 1px solid #14b8a6; /* teal-500 */
+            color: #14b8a6;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        .secondary-button:hover {
+            background-color: #14b8a6;
+            color: #ffffff;
+        }
+        .glass-card {
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(30, 41, 59, 0.5);
+        }
+        .faq-item .faq-answer { max-height: 0; overflow: hidden; transition: max-height 0.5s ease-in-out; }
+        .faq-item.open .faq-answer { max-height: 500px; }
+        .faq-item.open .faq-icon { transform: rotate(45deg); }
+        .faq-icon { transition: transform 0.3s ease; }
+        
+        /* Modal styles */
+        .modal-backdrop { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0, 0, 0, 0.7); z-index: 100; display: flex; align-items: center; justify-content: center; opacity: 0; visibility: hidden; transition: opacity 0.3s ease, visibility 0.3s ease; }
+        .modal-backdrop.active { opacity: 1; visibility: visible; }
+        .modal-content { transform: scale(0.95); transition: transform 0.3s ease; }
+        .modal-backdrop.active .modal-content { transform: scale(1); }
+
+        /* Animation for live feed */
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .trade-item-enter { animation: fadeIn 0.5s ease forwards; }
+
+        /* Profit/Loss flash animations */
+        @keyframes flash-green-text { 0% { color: #4ade80; } 100% { color: inherit; } }
+        @keyframes flash-red-text { 0% { color: #f87171; } 100% { color: inherit; } }
+        .flash-green { animation: flash-green-text 1s ease; }
+        .flash-red { animation: flash-red-text 1s ease; }
+        .text-profit { color: #4ade80; }
+        .text-loss { color: #f87171; }
+        
+        /* Tab styles */
+        .tab-button {
+            background-color: transparent;
+            border-bottom: 2px solid transparent;
+            transition: border-color 0.3s ease, color 0.3s ease;
+        }
+        .tab-button.active {
+            color: #14b8a6;
+            border-bottom-color: #14b8a6;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <!-- Header -->
+    <header class="sticky top-0 z-50 bg-slate-950/80 backdrop-blur-lg border-b border-slate-800">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                <div class="flex-shrink-0">
+                    <a href="#" class="text-2xl font-bold gradient-text">DavsAI</a>
+                </div>
+                <nav id="main-nav" class="hidden lg:flex lg:space-x-8">
+                    <a href="#trading-types" class="text-sm font-medium text-slate-300 hover:text-teal-400 transition-colors">Handelstyper</a>
+                    <a href="#technology" class="text-sm font-medium text-slate-300 hover:text-teal-400 transition-colors">Teknologi</a>
+                    <a href="#faq" class="text-sm font-medium text-slate-300 hover:text-teal-400 transition-colors">FAQ</a>
+                </nav>
+                <div id="auth-buttons" class="hidden lg:flex items-center space-x-4">
+                    <button class="open-signup-modal text-sm font-medium text-slate-300 hover:text-white">Log Ind</button>
+                    <button class="open-signup-modal cta-button text-white font-semibold py-2 px-5 rounded-lg shadow-lg">Kom i Gang</button>
+                </div>
+                 <div id="dashboard-button-container" class="hidden lg:flex items-center">
+                    <span id="header-balance" class="text-sm text-slate-300 mr-6"></span>
+                    <button id="logout-button" class="secondary-button text-sm font-semibold py-2 px-5 rounded-lg">Log Ud</button>
+                </div>
+                <div class="lg:hidden">
+                    <button id="mobile-menu-button" class="text-slate-300 hover:text-white focus:outline-none">
+                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" /></svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div id="mobile-menu" class="hidden lg:hidden">
+            <!-- Mobile menu content will be dynamically updated -->
+        </div>
+    </header>
+
+    <div id="landing-page">
+        <main>
+            <!-- Hero Section -->
+            <section class="py-24 sm:py-32">
+                <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="grid lg:grid-cols-2 gap-12 items-center">
+                        <div class="text-center lg:text-left">
+                            <h1 class="text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight text-white">
+                                Fremtidens Handel er <span class="gradient-text">Automatiseret</span>
+                            </h1>
+                            <p class="mt-6 text-lg text-slate-400 max-w-xl mx-auto lg:mx-0">
+                                Vores avancerede AI, bygget på Deep Neural Networks og LLM'er, analyserer millioner af datapunkter for at udføre handler med høj præcision på tværs af aktier, krypto og forex.
+                            </p>
+                            <div class="mt-10 flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
+                                <button class="open-signup-modal w-full sm:w-auto cta-button text-white font-bold py-4 px-8 rounded-lg text-lg shadow-xl">
+                                    Start Din AI-Handel Nu
+                                </button>
+                                <a href="#technology" class="w-full sm:w-auto secondary-button font-bold py-4 px-8 rounded-lg text-lg">
+                                    Udforsk Teknologien
+                                </a>
+                            </div>
+                        </div>
+                        <div class="glass-card rounded-2xl p-4 shadow-2xl">
+                            <canvas id="liveChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Other sections from landing page -->
+            <section id="technology" class="py-24 sm:py-32 bg-slate-900">
+                <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="text-center max-w-3xl mx-auto">
+                        <h2 class="text-3xl lg:text-4xl font-bold text-white">Drevet af <span class="gradient-text">Banebrydende Teknologi</span></h2>
+                    </div>
+                    <div class="mt-16 grid md:grid-cols-3 gap-10">
+                        <div class="p-8 glass-card rounded-2xl text-center">
+                            <h3 class="text-xl font-bold text-white">Large Language Models (LLM)</h3>
+                            <p class="mt-2 text-slate-400">Vores AI læser og forstår nyheder og markedsrapporter i realtid for at fange markedssentimentet.</p>
+                        </div>
+                        <div class="p-8 glass-card rounded-2xl text-center">
+                            <h3 class="text-xl font-bold text-white">Deep Neural Networks (DNN)</h3>
+                            <p class="mt-2 text-slate-400">Ved at analysere historiske prisdata identificerer vores neurale netværk profitable handelsmuligheder.</p>
+                        </div>
+                        <div class="p-8 glass-card rounded-2xl text-center">
+                            <h3 class="text-xl font-bold text-white">Evolutionære Algoritmer</h3>
+                            <p class="mt-2 text-slate-400">Vores handelsstrategier udvikler sig konstant for at tilpasse sig skiftende markedsforhold.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <section id="trading-types" class="py-24 sm:py-32">
+                <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="text-center max-w-3xl mx-auto">
+                        <h2 class="text-3xl lg:text-4xl font-bold text-white">Handl <span class="gradient-text">Krypto, Forex & Aktier</span></h2>
+                    </div>
+                    <div class="mt-16 grid lg:grid-cols-2 gap-12 items-center">
+                        <div>
+                            <img src="https://placehold.co/600x450/0f172a/38bdf8?text=Multi-Asset+Dashboard" alt="[Billede af et dashboard, der viser krypto-, forex- og aktiehandel]" class="rounded-2xl shadow-2xl mx-auto">
+                        </div>
+                        <div class="space-y-8">
+                            <div>
+                                <h3 class="text-xl font-bold text-white">AI Krypto Signaler</h3>
+                                <p class="mt-2 text-slate-400">Få et forspring på det volatile kryptomarked med præcise købs-/salgssignaler.</p>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-bold text-white">Automatiseret Forex Handel</h3>
+                                <p class="mt-2 text-slate-400">Udnyt verdens største finansmarked 24/5, selv ved de mindste prisudsving.</p>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-bold text-white">Intelligent Aktieinvestering</h3>
+                                <p class="mt-2 text-slate-400">Vores AI udfører dybdegående analyse for at opbygge en robust aktieportefølje.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="faq" class="py-24 sm:py-32 bg-slate-900">
+                <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="text-center max-w-3xl mx-auto">
+                        <h2 class="text-3xl lg:text-4xl font-bold text-white">Ofte Stillede <span class="gradient-text">Spørgsmål</span></h2>
+                    </div>
+                    <div id="faq-container" class="mt-12 max-w-3xl mx-auto space-y-4">
+                        <div class="faq-item glass-card rounded-lg">
+                            <button class="faq-question w-full flex justify-between items-center text-left p-6"><span class="text-lg font-medium text-white">Hvad er DavsAI?</span><span class="faq-icon text-teal-400 text-2xl font-thin">+</span></button>
+                            <div class="faq-answer px-6 pb-6"><p class="text-slate-400">DavsAI er en avanceret AI-drevet handelsplatform, der automatisk handler på dine vegne. Vores system bruger en kombination af Deep Neural Networks og Large Language Models til at analysere markedsdata og træffe handelsbeslutninger med høj præcision.</p></div>
+                        </div>
+                         <div class="faq-item glass-card rounded-lg">
+                            <button class="faq-question w-full flex justify-between items-center text-left p-6"><span class="text-lg font-medium text-white">Hvordan tjener DavsAI penge?</span><span class="faq-icon text-teal-400 text-2xl font-thin">+</span></button>
+                            <div class="faq-answer px-6 pb-6"><p class="text-slate-400">Vi opkræver kun kommission på profitable handler. Hvis en handel ikke giver overskud, betaler du ingen kommission. Vores succes er direkte forbundet med din succes.</p></div>
+                        </div>
+                         <div class="faq-item glass-card rounded-lg">
+                            <button class="faq-question w-full flex justify-between items-center text-left p-6"><span class="text-lg font-medium text-white">Hvad er minimumsindskuddet?</span><span class="faq-icon text-teal-400 text-2xl font-thin">+</span></button>
+                            <div class="faq-answer px-6 pb-6"><p class="text-slate-400">Minimumsindskuddet er $300. Dette sikrer, at AI'en har tilstrækkelig kapital til at diversificere handler og effektivt styre risiko.</p></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Trading Dashboard -->
+    <div id="trading-dashboard" class="hidden">
+        <main class="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <h1 class="text-3xl font-bold text-white mb-8">Dit Handels-Dashboard</h1>
+            
+            <!-- Account Summary -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <div class="glass-card rounded-xl p-6">
+                    <h2 class="text-sm font-medium text-slate-400">Samlet Saldo</h2>
+                    <p id="dashboard-total-balance" class="text-3xl font-bold text-white mt-2">$0.00</p>
+                </div>
+                <div class="glass-card rounded-xl p-6">
+                    <h2 class="text-sm font-medium text-slate-400">Dagens Gevinst/Tab</h2>
+                    <p id="dashboard-daily-pnl" class="text-3xl font-bold text-white mt-2">$0.00</p>
+                </div>
+                 <div class="glass-card rounded-xl p-6">
+                    <h2 class="text-sm font-medium text-slate-400">Gevinstprocent</h2>
+                    <p id="dashboard-win-rate" class="text-3xl font-bold text-white mt-2">0.00%</p>
+                </div>
+                <div class="glass-card rounded-xl p-6">
+                    <h2 class="text-sm font-medium text-slate-400">Antal Handler (i dag)</h2>
+                    <p id="dashboard-total-trades" class="text-3xl font-bold text-white mt-2">0</p>
+                </div>
+            </div>
+
+            <!-- Main Dashboard Content -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Left Column: Tabs -->
+                <div class="lg:col-span-2 space-y-6">
+                    <!-- Tab Navigation -->
+                    <div class="border-b border-slate-700">
+                        <nav id="dashboard-tabs" class="-mb-px flex space-x-8" aria-label="Tabs">
+                            <button data-tab="overview" class="tab-button active whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">Oversigt</button>
+                            <button data-tab="history" class="tab-button whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm text-slate-400 hover:text-white">Transaktionshistorik</button>
+                            <button data-tab="hyip" class="tab-button whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm text-slate-400 hover:text-white">Lås Indtjening (HYIP)</button>
+                        </nav>
+                    </div>
+
+                    <!-- Tab Content -->
+                    <div id="tab-content-overview" class="tab-panel">
+                        <div class="glass-card rounded-xl p-6">
+                            <h2 class="text-xl font-bold text-white mb-4">Konto Performance</h2>
+                            <canvas id="performanceChart"></canvas>
+                        </div>
+                    </div>
+                    <div id="tab-content-history" class="tab-panel hidden">
+                         <div class="glass-card rounded-xl p-6">
+                            <h2 class="text-xl font-bold text-white mb-4">Historik</h2>
+                            <div class="overflow-x-auto">
+                                <table class="min-w-full text-sm text-left">
+                                    <thead class="border-b border-slate-700 text-slate-400">
+                                        <tr>
+                                            <th class="py-2 px-3">Dato/Tid</th>
+                                            <th class="py-2 px-3">Marked</th>
+                                            <th class="py-2 px-3">Type</th>
+                                            <th class="py-2 px-3 text-right">Gevinst/Tab</th>
+                                            <th class="py-2 px-3 text-right">Saldo Efter</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="transaction-history-body">
+                                        <!-- History rows injected here -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="tab-content-hyip" class="tab-panel hidden">
+                        <div class="glass-card rounded-xl p-6">
+                            <h2 class="text-xl font-bold text-white mb-4">Lås Indtjening for Højere Afkast</h2>
+                            <p class="text-slate-400 mb-6 text-sm">Lås en del af din saldo i en periode for at opnå en garanteret, fast gevinst. Perfekt til langsigtet vækst.</p>
+                            <div class="grid md:grid-cols-2 gap-6 items-end">
+                                <div>
+                                    <label for="lock-amount" class="block text-sm font-medium text-slate-300">Beløb at låse</label>
+                                    <input type="number" id="lock-amount" placeholder="f.eks. 500" class="mt-1 block w-full bg-slate-800 border-slate-700 rounded-md shadow-sm py-2 px-3 text-white focus:outline-none focus:ring-teal-500 focus:border-teal-500">
+                                    
+                                    <label for="lock-period" class="block text-sm font-medium text-slate-300 mt-4">Låseperiode</pre>
+                                    <select id="lock-period" class="mt-1 block w-full bg-slate-800 border-slate-700 rounded-md shadow-sm py-2 px-3 text-white focus:outline-none focus:ring-teal-500 focus:border-teal-500">
+                                        <option value="30" data-rate="5">30 Dage - 5% Gevinst</option>
+                                        <option value="90" data-rate="18">90 Dage - 18% Gevinst</option>
+                                        <option value="180" data-rate="40">180 Dage - 40% Gevinst</option>
+                                    </select>
+                                    
+                                    <div class="flex items-center mt-4">
+                                        <input id="compound-toggle" type="checkbox" class="h-4 w-4 text-teal-600 border-slate-600 rounded focus:ring-teal-500">
+                                        <label for="compound-toggle" class="ml-2 block text-sm text-slate-300">Aktiver Compound Rente</label>
+                                    </div>
+                                </div>
+                                <div>
+                                    <button id="start-lock-button" class="w-full cta-button font-bold py-3 px-6 rounded-lg">Start Låsning</button>
+                                    <p id="lock-error" class="text-red-400 text-sm mt-2"></p>
+                                </div>
+                            </div>
+                            <div id="active-locks-container" class="mt-8">
+                                <h3 class="text-lg font-semibold text-white">Aktive Låse</h3>
+                                <p id="dashboard-locked-earnings-summary" class="text-sm text-slate-400 mb-4"></p>
+                                <div id="active-locks-list" class="mt-2 space-y-4 text-sm">
+                                    <p class="text-slate-500">Ingen aktive låse.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column: Live Trading Feed -->
+                <div class="glass-card rounded-xl p-6">
+                    <h2 class="text-xl font-bold text-white mb-4">Live Handelsfeed</h2>
+                    <div id="live-feed" class="space-y-3 h-[600px] overflow-y-auto pr-2">
+                        <!-- Trades will be injected here by JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Signup Modal -->
+    <div id="signup-modal" class="modal-backdrop">
+        <div class="modal-content w-full max-w-lg glass-card rounded-2xl shadow-2xl overflow-hidden">
+            <div class="p-8">
+                <div class="flex justify-between items-start">
+                    <h2 class="text-2xl font-bold text-white">Bliv en del af DavsAI</h2>
+                    <button id="close-modal-button" class="text-slate-400 hover:text-white text-3xl">&times;</button>
+                </div>
+                <form id="signup-form" class="mt-6">
+                    <div class="space-y-4">
+                        <div>
+                            <label for="name" class="block text-sm font-medium text-slate-300">Fulde Navn</label>
+                            <input type="text" id="name" class="mt-1 block w-full bg-slate-800 border-slate-700 rounded-md shadow-sm py-2 px-3 text-white focus:outline-none focus:ring-teal-500 focus:border-teal-500" required>
+                        </div>
+                        <div>
+                            <label for="email" class="block text-sm font-medium text-slate-300">Email</label>
+                            <input type="email" id="email" class="mt-1 block w-full bg-slate-800 border-slate-700 rounded-md shadow-sm py-2 px-3 text-white focus:outline-none focus:ring-teal-500 focus:border-teal-500" required>
+                        </div>
+                        <div>
+                            <label for="initial-deposit" class="block text-sm font-medium text-slate-300">Startindskud ($)</label>
+                            <input type="number" id="initial-deposit" value="1000" class="mt-1 block w-full bg-slate-800 border-slate-700 rounded-md shadow-sm py-2 px-3 text-white focus:outline-none focus:ring-teal-500 focus:border-teal-500" required min="300">
+                        </div>
+                    </div>
+                    <div class="mt-8">
+                        <button type="submit" class="w-full cta-button font-bold py-3 px-6 rounded-lg">Opret Konto og Start Handel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // --- STATE MANAGEMENT ---
+            let accountState = {
+                isLoggedIn: false,
+                balance: 0,
+                dailyPnl: 0,
+                lockedEarnings: 0,
+                activeLocks: [],
+                tradeInterval: null,
+                lockCheckInterval: null,
+                performanceData: [],
+                transactionHistory: [],
+                totalTrades: 0,
+                profitableTrades: 0,
+            };
+
+            // --- UI ELEMENTS ---
+            const landingPage = document.getElementById('landing-page');
+            const tradingDashboard = document.getElementById('trading-dashboard');
+            const authButtons = document.getElementById('auth-buttons');
+            const dashboardButtonContainer = document.getElementById('dashboard-button-container');
+            const headerBalanceEl = document.getElementById('header-balance');
+            const mobileMenu = document.getElementById('mobile-menu');
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            
+            // Dashboard UI
+            const balanceEl = document.getElementById('dashboard-total-balance');
+            const pnlEl = document.getElementById('dashboard-daily-pnl');
+            const winRateEl = document.getElementById('dashboard-win-rate');
+            const totalTradesEl = document.getElementById('dashboard-total-trades');
+            const liveFeedEl = document.getElementById('live-feed');
+            const historyBodyEl = document.getElementById('transaction-history-body');
+
+            // HYIP UI
+            const lockedSummaryEl = document.getElementById('dashboard-locked-earnings-summary');
+            const lockAmountInput = document.getElementById('lock-amount');
+            const lockPeriodSelect = document.getElementById('lock-period');
+            const compoundToggle = document.getElementById('compound-toggle');
+            const startLockButton = document.getElementById('start-lock-button');
+            const activeLocksListEl = document.getElementById('active-locks-list');
+            const lockErrorEl = document.getElementById('lock-error');
+
+            // Modal UI
+            const modal = document.getElementById('signup-modal');
+            const openModalButtons = document.querySelectorAll('.open-signup-modal');
+            const closeModalButton = document.getElementById('close-modal-button');
+            const signupForm = document.getElementById('signup-form');
+
+            // Charts
+            let landingPageChart, performanceChart;
+
+            // --- FORMATTERS ---
+            const currencyFormatter = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' });
+            const dateTimeFormatter = new Intl.DateTimeFormat('da-DK', { dateStyle: 'short', timeStyle: 'medium' });
+
+            // --- INITIALIZATION ---
+            function initializeLandingPageChart() {
+                const ctx = document.getElementById('liveChart');
+                if (ctx && !landingPageChart) {
+                    let lastDate = Date.now();
+                    const initialData = Array.from({ length: 40 }, (_, i) => {
+                        lastDate -= 60000;
+                        return { x: lastDate, y: 150 + Math.random() * 20 - 10 + i * 0.5 };
+                    }).reverse();
+                    landingPageChart = new Chart(ctx, {
+                        type: 'line',
+                        data: { datasets: [{ data: initialData, borderColor: '#14b8a6', backgroundColor: 'rgba(20, 184, 166, 0.1)', borderWidth: 2, pointRadius: 0, tension: 0.4, fill: true }] },
+                        options: { responsive: true, scales: { x: { display: false }, y: { display: false } }, plugins: { legend: { display: false } } }
+                    });
+                    setInterval(() => {
+                        if (landingPageChart) {
+                            const lastPoint = landingPageChart.data.datasets[0].data.slice(-1)[0];
+                            const newPoint = { x: Date.now(), y: lastPoint.y + Math.random() * 4 - 2 };
+                            landingPageChart.data.datasets[0].data.push(newPoint);
+                            landingPageChart.data.datasets[0].data.shift();
+                            landingPageChart.update('quiet');
+                        }
+                    }, 2000);
+                }
+            }
+
+            function initializePerformanceChart() {
+                const ctx = document.getElementById('performanceChart');
+                if (ctx && !performanceChart) {
+                    performanceChart = new Chart(ctx, {
+                        type: 'line',
+                        data: { datasets: [{ label: 'Kontosaldo', data: accountState.performanceData, borderColor: '#2dd4bf', backgroundColor: 'rgba(45, 212, 191, 0.1)', borderWidth: 2, pointRadius: 0, tension: 0.1, fill: true }] },
+                        options: { responsive: true, scales: { x: { type: 'timeseries', time: { unit: 'minute' }, ticks: { color: '#94a3b8' }, grid: { color: 'rgba(148, 163, 184, 0.1)' } }, y: { ticks: { color: '#94a3b8', callback: value => currencyFormatter.format(value) }, grid: { color: 'rgba(148, 163, 184, 0.1)' } } }, plugins: { legend: { display: false } } }
+                    });
+                }
+            }
+
+            // --- UI UPDATE & RENDERING ---
+            function updateDashboardSummary() {
+                balanceEl.textContent = currencyFormatter.format(accountState.balance);
+                pnlEl.textContent = currencyFormatter.format(accountState.dailyPnl);
+                pnlEl.className = `text-3xl font-bold mt-2 ${accountState.dailyPnl >= 0 ? 'text-profit' : 'text-loss'}`;
+                totalTradesEl.textContent = accountState.totalTrades;
+                const winRate = accountState.totalTrades > 0 ? (accountState.profitableTrades / accountState.totalTrades) * 100 : 0;
+                winRateEl.textContent = `${winRate.toFixed(2)}%`;
+                winRateEl.className = `text-3xl font-bold mt-2 ${winRate >= 50 ? 'text-profit' : 'text-loss'}`;
+                headerBalanceEl.textContent = `Saldo: ${currencyFormatter.format(accountState.balance)}`;
+            }
+            
+            function renderTransactionHistory() {
+                historyBodyEl.innerHTML = '';
+                [...accountState.transactionHistory].reverse().forEach(trade => {
+                    const row = document.createElement('tr');
+                    row.className = 'border-b border-slate-800 hover:bg-slate-800/50';
+                    row.innerHTML = `
+                        <td class="py-2 px-3">${dateTimeFormatter.format(trade.timestamp)}</td>
+                        <td class="py-2 px-3 font-medium">${trade.market}</td>
+                        <td class="py-2 px-3 ${trade.type === 'KØB' ? 'text-sky-400' : 'text-amber-400'}">${trade.type}</td>
+                        <td class="py-2 px-3 text-right font-mono ${trade.pnl >= 0 ? 'text-profit' : 'text-loss'}">${currencyFormatter.format(trade.pnl)}</td>
+                        <td class="py-2 px-3 text-right font-mono text-slate-400">${currencyFormatter.format(trade.balanceAfter)}</td>
+                    `;
+                    historyBodyEl.appendChild(row);
+                });
+            }
+
+            function updateActiveLocksUI() {
+                const totalLocked = accountState.activeLocks.reduce((sum, lock) => sum + lock.amount, 0);
+                lockedSummaryEl.textContent = `Du har ${currencyFormatter.format(totalLocked)} låst i alt.`;
+
+                if (accountState.activeLocks.length === 0) {
+                    activeLocksListEl.innerHTML = `<p class="text-slate-500">Ingen aktive låse.</p>`;
+                    return;
+                }
+                activeLocksListEl.innerHTML = accountState.activeLocks.map((lock, index) => {
+                    const now = Date.now();
+                    const isMatured = now >= lock.endDate;
+                    const progress = isMatured ? 100 : Math.min(100, ((now - lock.startDate) / (lock.endDate - lock.startDate)) * 100);
+                    
+                    return `
+                        <div class="glass-card rounded-lg p-4">
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="font-bold text-white">${currencyFormatter.format(lock.amount)} @ ${lock.rate}%</span>
+                                <span class="text-slate-400">${lock.days} Dage</span>
+                            </div>
+                            <div class="w-full bg-slate-700 rounded-full h-2.5 mb-2">
+                                <div class="bg-teal-500 h-2.5 rounded-full" style="width: ${progress}%"></div>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-slate-500">Udløber: ${new Date(lock.endDate).toLocaleDateString()}</span>
+                                ${isMatured ? `<button data-lock-index="${index}" class="claim-lock-button cta-button text-xs font-bold py-1 px-3 rounded-md">Indløs</button>` : ''}
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+            
+            function switchTab(tabName) {
+                document.querySelectorAll('.tab-panel').forEach(panel => panel.classList.add('hidden'));
+                document.querySelectorAll('.tab-button').forEach(button => button.classList.remove('active', 'text-teal-400'));
+                
+                document.getElementById(`tab-content-${tabName}`).classList.remove('hidden');
+                document.querySelector(`button[data-tab='${tabName}']`).classList.add('active', 'text-teal-400');
+            }
+
+            function updateUI() {
+                if (accountState.isLoggedIn) {
+                    landingPage.classList.add('hidden');
+                    tradingDashboard.classList.remove('hidden');
+                    authButtons.classList.add('hidden');
+                    dashboardButtonContainer.classList.remove('hidden');
+                    if (!performanceChart) initializePerformanceChart();
+                    updateDashboardSummary();
+                    updateActiveLocksUI();
+                    renderTransactionHistory();
+                } else {
+                    landingPage.classList.remove('hidden');
+                    tradingDashboard.classList.add('hidden');
+                    authButtons.classList.remove('hidden');
+                    dashboardButtonContainer.classList.add('hidden');
+                    if (performanceChart) { performanceChart.destroy(); performanceChart = null; }
+                }
+                updateMobileMenu();
+            }
+
+            function updateMobileMenu() {
+                mobileMenu.innerHTML = accountState.isLoggedIn ? `
+                    <div class="pt-4 pb-3 border-t border-slate-800 px-5">
+                        <p class="text-base font-medium text-white">Saldo: ${currencyFormatter.format(accountState.balance)}</p>
+                        <button id="mobile-logout-button" class="mt-3 block w-full text-center secondary-button font-semibold py-2 px-5 rounded-lg">Log Ud</button>
+                    </div>` : `
+                    <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+                        <a href="#trading-types" class="block px-3 py-2 rounded-md text-base font-medium text-slate-300 hover:text-white hover:bg-slate-800">Handelstyper</a>
+                        <a href="#technology" class="block px-3 py-2 rounded-md text-base font-medium text-slate-300 hover:text-white hover:bg-slate-800">Teknologi</a>
+                        <a href="#faq" class="block px-3 py-2 rounded-md text-base font-medium text-slate-300 hover:text-white hover:bg-slate-800">FAQ</a>
+                    </div>
+                    <div class="pt-4 pb-3 border-t border-slate-800 px-5">
+                        <button class="open-signup-modal block w-full text-center cta-button text-white font-semibold py-2 px-5 rounded-lg shadow-lg mb-3">Kom i Gang</button>
+                        <button class="open-signup-modal block w-full text-center text-sm font-medium text-slate-300 hover:text-white">Log Ind</button>
+                    </div>`;
+            }
+
+            // --- SIMULATION LOGIC ---
+            function startTrading() {
+                stopTrading();
+                accountState.tradeInterval = setInterval(() => {
+                    const markets = ['BTC/USD', 'ETH/USD', 'EUR/USD', 'TSLA', 'AAPL', 'GBP/JPY'];
+                    const market = markets[Math.floor(Math.random() * markets.length)];
+                    const tradeType = Math.random() > 0.5 ? 'KØB' : 'SALG';
+                    const isProfit = Math.random() > 0.45; // 55% win rate
+                    const pnl = (accountState.balance * (Math.random() * 0.001)) * (isProfit ? 1 : -1);
+
+                    accountState.balance += pnl;
+                    accountState.dailyPnl += pnl;
+                    accountState.totalTrades++;
+                    if (isProfit) accountState.profitableTrades++;
+                    
+                    const trade = { timestamp: Date.now(), market, type: tradeType, pnl, balanceAfter: accountState.balance };
+                    accountState.transactionHistory.push(trade);
+
+                    accountState.performanceData.push({x: trade.timestamp, y: accountState.balance});
+                    if(accountState.performanceData.length > 200) accountState.performanceData.shift();
+                    if(performanceChart) performanceChart.update('quiet');
+
+                    const newTradeEl = document.createElement('div');
+                    newTradeEl.className = 'trade-item-enter grid grid-cols-3 gap-2 text-sm';
+                    newTradeEl.innerHTML = `<span class="font-semibold">${market}</span><span class="${tradeType === 'KØB' ? 'text-sky-400' : 'text-amber-400'}">${tradeType}</span><span class="text-right font-mono ${isProfit ? 'text-profit' : 'text-loss'}">${currencyFormatter.format(pnl)}</span>`;
+                    liveFeedEl.prepend(newTradeEl);
+                    if (liveFeedEl.children.length > 50) liveFeedEl.lastElementChild.remove();
+                    
+                    updateDashboardSummary();
+                    renderTransactionHistory();
+                }, 2500);
+            }
+
+            function stopTrading() {
+                clearInterval(accountState.tradeInterval);
+                accountState.tradeInterval = null;
+            }
+            
+            function startLockChecker() {
+                stopLockChecker();
+                accountState.lockCheckInterval = setInterval(updateActiveLocksUI, 5000); // Check for matured locks every 5s
+            }
+            
+            function stopLockChecker() {
+                clearInterval(accountState.lockCheckInterval);
+                accountState.lockCheckInterval = null;
+            }
+
+            // --- EVENT HANDLERS ---
+            function handleLogin(e) {
+                e.preventDefault();
+                const initialDeposit = parseFloat(document.getElementById('initial-deposit').value) || 1000;
+                
+                accountState = { ...accountState, isLoggedIn: true, balance: initialDeposit, dailyPnl: 0, totalTrades: 0, profitableTrades: 0, transactionHistory: [], performanceData: [{x: Date.now(), y: initialDeposit}] };
+                
+                localStorage.setItem('davsAIState', JSON.stringify(accountState));
+                modal.classList.remove('active');
+                updateUI();
+                startTrading();
+                startLockChecker();
+            }
+
+            function handleLogout() {
+                stopTrading();
+                stopLockChecker();
+                accountState.isLoggedIn = false;
+                localStorage.removeItem('davsAIState');
+                updateUI();
+            }
+
+            function handleClaimLock(e) {
+                if (!e.target.classList.contains('claim-lock-button')) return;
+                const index = parseInt(e.target.dataset.lockIndex);
+                const lock = accountState.activeLocks[index];
+                
+                if (lock && Date.now() >= lock.endDate) {
+                    const profit = lock.amount * (lock.rate / 100);
+                    const payout = lock.amount + profit;
+                    
+                    accountState.balance += payout;
+                    // Note: lockedEarnings state is derived, so we just remove the lock
+                    accountState.activeLocks.splice(index, 1);
+                    
+                    // Add a transaction for clarity
+                    const trade = { timestamp: Date.now(), market: 'HYIP Indløsning', type: 'GEVINST', pnl: profit, balanceAfter: accountState.balance };
+                    accountState.transactionHistory.push(trade);
+
+                    updateUI();
+                }
+            }
+
+            // --- EVENT LISTENERS BINDING ---
+            document.getElementById('dashboard-tabs').addEventListener('click', e => {
+                if (e.target.dataset.tab) switchTab(e.target.dataset.tab);
+            });
+            startLockButton.addEventListener('click', () => {
+                const amount = parseFloat(lockAmountInput.value);
+                lockErrorEl.textContent = '';
+                if (isNaN(amount) || amount <= 0) { lockErrorEl.textContent = 'Indtast venligst et gyldigt beløb.'; return; }
+                if (amount > accountState.balance) { lockErrorEl.textContent = 'Du har ikke nok midler på din saldo.'; return; }
+                const selectedOption = lockPeriodSelect.options[lockPeriodSelect.selectedIndex];
+                accountState.balance -= amount;
+                accountState.activeLocks.push({ amount, days: parseInt(selectedOption.value), rate: parseFloat(selectedOption.dataset.rate), isCompounding: compoundToggle.checked, startDate: Date.now(), endDate: Date.now() + parseInt(selectedOption.value) * 24 * 60 * 60 * 1000 });
+                lockAmountInput.value = '';
+                updateUI();
+            });
+            activeLocksListEl.addEventListener('click', handleClaimLock);
+            mobileMenuButton.addEventListener('click', () => mobileMenu.classList.toggle('hidden'));
+            document.body.addEventListener('click', (e) => {
+                if (e.target.id === 'logout-button' || e.target.id === 'mobile-logout-button') handleLogout();
+                if (e.target.classList.contains('open-signup-modal')) modal.classList.add('active');
+            });
+            closeModalButton.addEventListener('click', () => modal.classList.remove('active'));
+            modal.addEventListener('click', (e) => { if(e.target === modal) modal.classList.remove('active'); });
+            signupForm.addEventListener('submit', handleLogin);
+            
+            const faqContainer = document.getElementById('faq-container');
+            if (faqContainer) faqContainer.addEventListener('click', (e) => {
+                const qButton = e.target.closest('.faq-question');
+                if (!qButton) return;
+                const faqItem = qButton.parentElement;
+                const wasOpen = faqItem.classList.contains('open');
+                faqContainer.querySelectorAll('.faq-item.open').forEach(item => item.classList.remove('open'));
+                if (!wasOpen) faqItem.classList.add('open');
+            });
+
+            // --- SESSION MANAGEMENT ---
+            function checkSession() {
+                const savedState = localStorage.getItem('davsAIState');
+                if (savedState) {
+                    accountState = JSON.parse(savedState);
+                    if(accountState.isLoggedIn) {
+                        updateUI();
+                        startTrading();
+                        startLockChecker();
+                    }
+                } else {
+                    initializeLandingPageChart();
+                    updateMobileMenu();
+                }
+            }
+            checkSession();
+        });
+    </script>
+</body>
+</html>
+
