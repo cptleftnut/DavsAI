@@ -1,0 +1,1 @@
+{"name": "davslm-app", "version": "1.0.0", "scripts": {"test": "echo \"Error: no test specified\" && exit 1"}, "dependencies": {"react": "18.2.0", "react-native": "0.72.6"}}
