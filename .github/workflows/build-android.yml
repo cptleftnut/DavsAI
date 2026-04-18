@@ -32,6 +32,16 @@ jobs:
 
       - name: Installer afhængigheder
         run: npm install
+  - name: Opsæt Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+        
+              - name: Installer afhængigheder
+        run: |
+          npm install
+          npx react-native codegen # Sikrer at nødvendige filer genereres
+
 
       - name: Byg Android Release APK
         working-directory: android
