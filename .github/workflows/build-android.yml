@@ -17,7 +17,7 @@ jobs:
       - name: Opsæt Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: "18"
 
           - name: Opsæt Node.js
         uses: actions/setup-node@v3
