@@ -19,6 +19,11 @@ jobs:
         with:
           node-version: "20"
 
+          - name: Opsæt Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+
       - name: Opsæt Java JDK
         uses: actions/setup-java@v4
         with:
