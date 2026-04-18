@@ -18,17 +18,22 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "20"
+          cache: 'npm' # Gør fremtidige builds hurtigere
 
       - name: Opsæt Java JDK
         uses: actions/setup-java@v4
         with:
           distribution: "zulu"
           java-version: "17"
+          cache: 'gradle'
 
       - name: Installer afhængigheder
-        run: npm install
+        run: npm install --include=dev # Sikrer at alt bliver installeret
 
-      - name: Byg Android Release APK
+      - name: Gør gradlew eksekverbar
+        run: chmod +x android/gradlew
+
+      - name: SUT MIN FUCKING DUT OG KOM VIDERE FORHELVEDE!
         working-directory: android
         run: ./gradlew assembleRelease
 
