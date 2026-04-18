@@ -1,4 +1,10 @@
 pluginManagement {
+    repositories {
+        google()
+        mavenCentral()
+        gradlePluginPortal()
+    }
+    // Her tvinger vi den til at finde pluginnet i node_modules
     includeBuild("../node_modules/@react-native/gradle-plugin")
 }
 
