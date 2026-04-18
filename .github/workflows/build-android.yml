@@ -38,23 +38,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: DAVSlm
-          path: android/app/build/outputs/apk/release/app-release.apk
-        uses: actions/setup-node@v3
-        with:
-          node-version: "20"
-        
-           - name: Installer afhængigheder
-        run: 
-          npm install
-          npx react-native codegen
-
-
-      - name: Byg Android Release APK
-        working-directory: android
-        run: ./gradlew assembleRelease
-
-      - name: Gem APK filen som en artefakt
-        uses: actions/upload-artifact@v4
-        with:
-          name: DAVSlm
-          path: android/app/build/outputs/apk/release/app-release.apk
+          path: android/app/build/outputs/apk/release/DAVSlm.apk
