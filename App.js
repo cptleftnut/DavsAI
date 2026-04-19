@@ -1,6 +1,31 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, SafeAreaView, KeyboardAvoidingView, Platform } from 'react-native';
+import React, { useState, useEffect } from 'react'; // Husk at importere useEffect
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, SafeAreaView, KeyboardAvoidingView, Platform } from 'react-native';
 
+// ... (dine monstre og moodMap) ...
+
+export default function App() {
+  const [activeMonster, setActiveMonster] = useState('gnist');
+  const [currentMood, setCurrentMood] = useState('neutral');
+  const [input, setInput] = useState('');
+  const [chat, setChat] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const monsterData = monsters[activeMonster];
+
+  // WAKE-UP CALL TIL RENDER
+  useEffect(() => {
+    fetch('https://davslm.onrender.com/api/chat', { 
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: 'ping', monster_type: 'gnist' })
+    }).catch(() => {
+      console.log("Server opvarmning startet...");
+    });
+  }, []); // Kører kun én gang, når appen starter
+
+  // ... (resten af din sendMessage funktion og return) ...
 const monsters = {
   gnist: { id: 'gnist', navn: 'Gnist', ikon: '⚡', farve: '#FFD700', hilsen: 'Zapp! Jeg er klar!' },
   flamme: { id: 'flamme', navn: 'Flamme', ikon: '🔥', farve: '#FF4500', hilsen: 'Wroaar! Lad os kæmpe!' },
