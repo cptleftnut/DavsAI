@@ -1,22 +1,32 @@
-# Exported from Render on 2026-04-19T11:29:40Z
-version: "1"
-projects:
-- name: My project
-  environments:
-  - name: DAVSlm
-    services:
-    - type: web
-      name: DAVSlm
-      runtime: python
-      repo: https://github.com/cptleftnut/DavsAI
-      plan: free
-      envVars:
+services:
+  # Backend API (Flask)
+  - type: web
+    name: davsai-backend
+    runtime: python
+    plan: free
+    region: oregon
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app --bind 0.0.0.0:$PORT
+    envVars:
       - key: GROQ_API_KEY
-        sync: false
-      region: oregon
-      buildCommand: pip install -r requirements.txt
-      startCommand: gunicorn app:app --bind 0.0.0.0:$PORT
-      autoDeployTrigger: commit
-      rootDir: backend
-      previews:
-        generation: automatic
+        sync: false # Brugeren skal selv indsætte nøglen i Render Dashboard
+      - key: PYTHON_VERSION
+        value: 3.11.0
+
+  # Frontend (Static Site)
+  - type: static
+    name: davsai-frontend
+    runtime: static
+    plan: free
+    region: oregon
+    buildCommand: cp package-web.json package.json && npm install && npm run build
+    publishPath: dist
+    headers:
+      - path: /*
+        name: Cache-Control
+        value: no-cache
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
