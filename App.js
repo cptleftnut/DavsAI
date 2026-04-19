@@ -96,6 +96,7 @@ const styles = StyleSheet.create({
   monsterIcon: { fontSize: 20, position: 'absolute', top: 10, left: 15 },
   moodFace: { fontSize: 60 },
   monsterName: { fontSize: 16, fontWeight: 'bold', color: '#333' },
+  greeting: { color: '#aaa', fontStyle: 'italic', marginBottom: 5 },
   chatBox: { flex: 1, backgroundColor: '#2a2a2a', marginVertical: 15, borderRadius: 15, padding: 10 },
   msgBubble: { padding: 10, borderRadius: 15, marginVertical: 5, maxWidth: '80%' },
   userBubble: { alignSelf: 'flex-end', backgroundColor: '#007BFF' },
