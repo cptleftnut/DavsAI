@@ -19,7 +19,6 @@ services:
     name: davsai-frontend
     env: static # NB: Render bruger 'env: static', ikke 'runtime'
     plan: free
-    region: frankfurt
     buildCommand: cp package-web.json package.json && npm install && npm run build
     
     # HER ER RETTELSEN:
