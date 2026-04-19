@@ -4,7 +4,7 @@ services:
     name: davsai-backend
     runtime: python
     plan: free
-    region: oregon
+    region: frankfurt
     rootDir: backend
     buildCommand: pip install -r requirements.txt
     startCommand: gunicorn app:app --bind 0.0.0.0:$PORT
@@ -19,7 +19,7 @@ services:
     name: davsai-frontend
     runtime: static
     plan: free
-    region: oregon
+    region: frankfurt
     buildCommand: cp package-web.json package.json && npm install && npm run build
     publishPath: dist
     headers:
