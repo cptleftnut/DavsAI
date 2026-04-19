@@ -1,28 +1,20 @@
-pluginManagement {
-    repositories {
-        google()
-        mavenCentral()
-        gradlePluginPortal()
-    }
+// 1. Dette SKAL være øverst
+pluginManagement { 
+    includeBuild("../node_modules/@react-native/gradle-plugin") 
 }
 
-// Denne kode finder automatisk stien til React Native pluginnet
-def findReactNativePlugin() {
-    def nodeModules = new File(rootDir, "../node_modules")
-    def pluginPath = new File(nodeModules, "@react-native/gradle-plugin")
-    if (pluginPath.exists()) return pluginPath
-    return new File(nodeModules, "react-native/gradle-plugin")
+// 2. Dette SKAL være det næste
+plugins { 
+    id("com.facebook.react.settings") 
 }
 
-includeBuild(findReactNativePlugin())
-
-plugins {
-    id("com.facebook.react.settings")
+// 3. Konfiguration af autolinking
+extensions.configure(com.facebook.react.ReactSettingsExtension) { ex -> 
+    ex.autolinkLibrariesWithApp() 
 }
 
-extensions.configure(com.facebook.react.ReactSettingsExtension) {
-    autolinkLibrariesWithApp()
-}
-
+// 4. Først NU må du have navne og inclusions
 rootProject.name = 'DAVSlm'
+
 include ':app'
+includeBuild('../node_modules/@react-native/gradle-plugin')
