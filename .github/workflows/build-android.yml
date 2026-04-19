@@ -32,10 +32,9 @@ jobs:
         working-directory: android
         run: ./gradlew assembleRelease
 
-      - name: Gem APK filen som en artefakt
-        uses: actions/upload-artifact@v4
-        
-      - name: DAVSlm  
-      uses: 
-      path: android/app/build/outputs/apk/release/*.apk
-
+      - name: Gem APK filen som en artefact
+  uses: actions/upload-artifact@v4
+  with:
+    name: DAVSlm
+    path: android/app/build/outputs/apk/release/*.apk
+    continue-on-error: 
