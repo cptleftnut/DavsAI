@@ -1,6 +1,11 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, SafeAreaView, KeyboardAvoidingView, Platform } from 'react-native';
 
+{
+  "name": "DAVSlm",
+  "displayName": "DAVSlm"
+}
+
 // De 7 DAVSlm monstre
 const monsters = {
   gnist: { id: 'gnist', navn: 'Gnist', ikon: '⚡', farve: '#FFD700', hilsen: 'Zapp! Jeg er klar!' },
