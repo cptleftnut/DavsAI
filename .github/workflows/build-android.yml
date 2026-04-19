@@ -12,28 +12,30 @@ jobs:
 
     steps:
       - name: Hent kildekode
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4 # Opdateret til v4
 
       - name: Opsæt Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4 # Opdateret til v4
         with:
           node-version: '20'
 
       - name: Opsæt Java JDK
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4 # Opdateret til v4
         with:
           distribution: 'temurin'
-          java-version: '17' # Låst til 17 for stabilitet
+          java-version: '17'
 
       - name: Installer afhængigheder
-        run: npm install --verbose
+        run: npm install
 
-      - name: TRO PÅ DET DAV! OG PRØV SÅ IGEN!
+      - name: Byg Android Release APK
         working-directory: android
         run: ./gradlew assembleRelease
 
-      - name: Gem APK filen
-        uses: actions/upload-artifact@v3
+      - name: Gem APK filen som en artefakt
+        uses: actions/upload-artifact@v4 # Opdateret til v4 (løser din fejl!)
         with:
+          name: DAVSlm
+          path: android/app/build/outputs/apk/release/app-release.apk        with:
           name: DAVSlm-APK
           path: android/app/build/outputs/apk/release/app-release.apk
