@@ -6,11 +6,12 @@ plugins {
     id("com.facebook.react.settings")
 }
 
-extensions.configure(com.facebook.react.ReactSettingsExtension) { ex ->
-    ex.autolinkLibrariesWithApp()
+// Vi bruger navnet "react" i stedet for klassestien for at undgå 'com' fejlen
+extensions.configure("react") {
+    autolinkLibrariesWithApp()
 }
 
-rootProject.name = 'DavsAl'
+rootProject.name = 'DAVSlm'
 
 include ':app'
 includeBuild('../node_modules/@react-native/gradle-plugin')
