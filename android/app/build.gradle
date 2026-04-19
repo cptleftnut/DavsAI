@@ -60,8 +60,11 @@ android {
         applicationId "com.davslm"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
+        
+        // HER ER DE NYE VERSIONER:
         versionCode 2
-        versionName "2.0"
+        versionName "1.1"
+        
         manifestPlaceholders = [usesCleartextTraffic: true]
     }
 
@@ -85,12 +88,8 @@ android {
 
     buildTypes {
         release {
-            // Vi bruger debug-nøglen midlertidigt for at få APK'en bygget i skyen
             signingConfig signingConfigs.debug
-            
-            // HER ER RETTELSEN: Skiftes til 'false'
-            minifyEnabled false 
-            
+            minifyEnabled false // SKAL VÆRE FALSE!
             proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
         }
     }
@@ -99,13 +98,12 @@ android {
 dependencies {
     implementation("com.facebook.react:react-android")
     
-    // VIGTIGT: Dette er motoren, der læser din App.js kode!
+    // DETTE ER HJERNERNE: Uden disse crasher appen øjeblikkeligt
     if (hermesEnabled.toBoolean()) {
         implementation("com.facebook.react:hermes-android")
     } else {
         implementation("org.webkit:android-jsc:+")
     }
 }
-
 apply from: file("../../node_modules/@react-native-community/cli-platform-android/native_modules.gradle")
 applyNativeModulesAppBuildGradle(project)
