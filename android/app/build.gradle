@@ -98,13 +98,13 @@ android {
 }
 
 dependencies {
-    // The version of react-native is set by the React Native Gradle Plugin
     implementation("com.facebook.react:react-android")
-
+    
+    // VIGTIGT: Dette er motoren, der læser din App.js kode!
     if (hermesEnabled.toBoolean()) {
         implementation("com.facebook.react:hermes-android")
     } else {
-        implementation jscVariant
+        implementation("org.webkit:android-jsc:+")
     }
 }
 
