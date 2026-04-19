@@ -1,20 +1,16 @@
-// 1. Dette SKAL være øverst
-pluginManagement { 
-    includeBuild("../node_modules/@react-native/gradle-plugin") 
+pluginManagement {
+    includeBuild("../node_modules/@react-native/gradle-plugin")
 }
 
-// 2. Dette SKAL være det næste
-plugins { 
-    id("com.facebook.react.settings") 
+plugins {
+    id("com.facebook.react.settings")
 }
 
-// 3. Konfiguration af autolinking
-extensions.configure(com.facebook.react.ReactSettingsExtension) { ex -> 
-    ex.autolinkLibrariesWithApp() 
+extensions.configure(com.facebook.react.ReactSettingsExtension) { ex ->
+    ex.autolinkLibrariesWithApp()
 }
 
-// 4. Først NU må du have navne og inclusions
-rootProject.name = 'DAVSlm'
+rootProject.name = 'DavsAl'
 
 include ':app'
 includeBuild('../node_modules/@react-native/gradle-plugin')
