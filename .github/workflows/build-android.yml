@@ -18,7 +18,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "20"
-          # Cache er fjernet herfra for at undgå 'lock file not found' fejlen
 
       - name: Opsæt Java JDK
         uses: actions/setup-java@v4
@@ -27,12 +26,15 @@ jobs:
           java-version: "17"
 
       - name: Installer afhængigheder
-        run: npm install
+        run: |
+          npm install
+          # Tjek om pluginnet eksisterer (hjælper os med at fejlsøge)
+          ls -d node_modules/@react-native/gradle-plugin || echo "Plugin findes ikke!"
 
       - name: Gør gradlew eksekverbar
         run: chmod +x android/gradlew
 
-      - name: FUCK DIG DAV! HAH PRØV IGEN!
+      - name: Byg Android Release APK
         working-directory: android
         run: ./gradlew assembleRelease
 
