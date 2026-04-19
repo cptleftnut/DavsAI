@@ -31,3 +31,17 @@
 -keepclasseswithmembernames class * {
     native <methods>;
 }
+
+# Additional stability for newer Android versions
+-keep class androidx.appcompat.widget.** { *; }
+-keep class androidx.core.view.** { *; }
+-keep class com.google.android.material.** { *; }
+
+# Prevent crashes related to JavaScript interface
+-keepattributes JavascriptInterface
+-keepclassmembers class * {
+    @android.webkit.JavascriptInterface <methods>;
+}
+
+# Keep the entire package for react-native-safe-area-context
+-keep class com.th3rdwave.safeareacontext.** { *; }
