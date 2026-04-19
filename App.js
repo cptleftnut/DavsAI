@@ -2,29 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, SafeAreaView, KeyboardAvoidingView, Platform } from 'react-native';
 
 const monsters = {
-// ... (resten af din kode fortsætter herunder)
-export default function App() {
-  const [activeMonster, setActiveMonster] = useState('gnist');
-  const [currentMood, setCurrentMood] = useState('neutral');
-  const [input, setInput] = useState('');
-  const [chat, setChat] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
-
-  const monsterData = monsters[activeMonster];
-
-  // WAKE-UP CALL TIL RENDER
-  useEffect(() => {
-    fetch('https://davslm.onrender.com/api/chat', { 
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message: 'ping', monster_type: 'gnist' })
-    }).catch(() => {
-      console.log("Server opvarmning startet...");
-    });
-  }, []); // Kører kun én gang, når appen starter
-
-  // ... (resten af din sendMessage funktion og return) ...
-const monsters = {
   gnist: { id: 'gnist', navn: 'Gnist', ikon: '⚡', farve: '#FFD700', hilsen: 'Zapp! Jeg er klar!' },
   flamme: { id: 'flamme', navn: 'Flamme', ikon: '🔥', farve: '#FF4500', hilsen: 'Wroaar! Lad os kæmpe!' },
   vand: { id: 'vand', navn: 'Aqua', ikon: '💧', farve: '#1E90FF', hilsen: 'Plask... Hvad sker der?' },
@@ -48,6 +25,17 @@ export default function App() {
   const [isLoading, setIsLoading] = useState(false);
 
   const monsterData = monsters[activeMonster];
+
+  // WAKE-UP CALL TIL RENDER
+  useEffect(() => {
+    fetch('https://davslm.onrender.com/api/chat', { 
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: 'ping', monster_type: 'gnist' })
+    }).catch(() => {
+      console.log("Server opvarmning startet...");
+    });
+  }, []);
 
   const sendMessage = async () => {
     if (!input.trim() || isLoading) return;
@@ -119,7 +107,6 @@ const styles = StyleSheet.create({
   monsterIcon: { fontSize: 20, position: 'absolute', top: 10, left: 15 },
   moodFace: { fontSize: 60 },
   monsterName: { fontSize: 16, fontWeight: 'bold', color: '#333' },
-  greeting: { color: '#aaa', fontStyle: 'italic', marginBottom: 5 },
   chatBox: { flex: 1, backgroundColor: '#2a2a2a', marginVertical: 15, borderRadius: 15, padding: 10 },
   msgBubble: { padding: 10, borderRadius: 15, marginVertical: 5, maxWidth: '80%' },
   userBubble: { alignSelf: 'flex-end', backgroundColor: '#007BFF' },
