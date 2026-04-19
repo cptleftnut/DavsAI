@@ -3,7 +3,6 @@ services:
   - type: web
     name: davsai-backend
     runtime: python
-    plan: free
     region: frankfurt
     rootDir: backend
     buildCommand: pip install -r requirements.txt
