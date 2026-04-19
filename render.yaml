@@ -21,7 +21,7 @@ services:
     plan: free
     region: frankfurt
     buildCommand: cp package-web.json package.json && npm install && npm run build
-    publishPath: dist
+    publishPath: /*
     headers:
       - path: /*
         name: Cache-Control
