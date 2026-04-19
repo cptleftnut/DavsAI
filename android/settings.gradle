@@ -8,3 +8,6 @@ apply from: file("../node_modules/@react-native-community/cli-platform-android/n
 applyNativeModulesSettingsGradle(settings)
 
 include ':app'
+
+// DETTE ER LINJEN DER MANGLEDE: Den lader 'app/build.gradle' finde pluginnet!
+includeBuild('../node_modules/@react-native/gradle-plugin')
