@@ -14,14 +14,17 @@ services:
       - key: PYTHON_VERSION
         value: 3.11.0
 
-  # Frontend (Static Site)
+# Frontend (Static Site)
   - type: web
     name: davsai-frontend
-    runtime: static
+    env: static # NB: Render bruger 'env: static', ikke 'runtime'
     plan: free
     region: frankfurt
     buildCommand: cp package-web.json package.json && npm install && npm run build
-    publishPath: /*
+    
+    # HER ER RETTELSEN:
+    staticPublishPath: web-server # Ret 'build' til 'dist' eller 'web-build', hvis din app gemmer det der
+    
     headers:
       - path: /*
         name: Cache-Control
@@ -29,4 +32,4 @@ services:
     routes:
       - type: rewrite
         source: /*
-        destination: web/index.html
+        destination: /index.html # Sørger for at React/routing virker
