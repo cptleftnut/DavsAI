@@ -50,10 +50,15 @@ export default function App() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message: userInput, monster_type: activeMonster })
       });
+      
+      if (!response.ok) throw new Error('Server fejl');
+      
       const data = await response.json();
-      if (data.svar) {
+      if (data && data.svar) {
         setChat(prev => [...prev, { role: 'ai', text: data.svar }]);
-        setCurrentMood(moodMap[data.humor] ? data.humor : 'neutral');
+        setCurrentMood(data.humor && moodMap[data.humor] ? data.humor : 'neutral');
+      } else {
+        throw new Error('Ugyldigt format fra server');
       }
     } catch (error) {
       setChat(prev => [...prev, { role: 'ai', text: "Hov, ingen forbindelse til skyen!" }]);

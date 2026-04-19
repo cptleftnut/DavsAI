@@ -9,7 +9,8 @@ app = Flask(__name__)
 CORS(app) 
 
 # Sikkerhed: Henter Groq API-nøglen fra Renders "Environment Variables"
-api_key = os.environ.get("GROQ_API_KEY") 
+# Groq API-nøgle hentes fra environment variables (GROQ_API_KEY)
+api_key = os.environ.get("GROQ_API_KEY")
 client = Groq(api_key=api_key)
 
 @app.route('/api/chat', methods=['POST'])
@@ -47,7 +48,18 @@ Eksempel: {{"svar": "Wow, det vidste jeg ikke!", "humor": "chokeret"}}
         )
         
         # Udtræk og send JSON direkte tilbage til appen
-        response_data = json.loads(chat_completion.choices[0].message.content)
+        content = chat_completion.choices[0].message.content
+        try:
+            response_data = json.loads(content)
+        except json.JSONDecodeError:
+            # Hvis AI'en ikke sender ren JSON, prøv at finde JSON i teksten
+            import re
+            match = re.search(r'\{.*\}', content, re.DOTALL)
+            if match:
+                response_data = json.loads(match.group())
+            else:
+                raise ValueError("Kunne ikke udtrække JSON fra AI svar")
+        
         return jsonify(response_data)
         
     except Exception as e:
