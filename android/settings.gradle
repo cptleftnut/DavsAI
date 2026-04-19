@@ -4,9 +4,17 @@ pluginManagement {
         mavenCentral()
         gradlePluginPortal()
     }
-    // Her tvinger vi den til at finde pluginnet i node_modules
-    includeBuild("../node_modules/@react-native/gradle-plugin")
 }
+
+// Denne kode finder automatisk stien til React Native pluginnet
+def findReactNativePlugin() {
+    def nodeModules = new File(rootDir, "../node_modules")
+    def pluginPath = new File(nodeModules, "@react-native/gradle-plugin")
+    if (pluginPath.exists()) return pluginPath
+    return new File(nodeModules, "react-native/gradle-plugin")
+}
+
+includeBuild(findReactNativePlugin())
 
 plugins {
     id("com.facebook.react.settings")
@@ -18,4 +26,3 @@ extensions.configure(com.facebook.react.ReactSettingsExtension) {
 
 rootProject.name = 'DAVSlm'
 include ':app'
-includeBuild('../node_modules/@react-native/gradle-plugin')
