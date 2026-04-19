@@ -18,22 +18,21 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "20"
-          cache: 'npm' # Gør fremtidige builds hurtigere
+          # Cache er fjernet herfra for at undgå 'lock file not found' fejlen
 
       - name: Opsæt Java JDK
         uses: actions/setup-java@v4
         with:
           distribution: "zulu"
           java-version: "17"
-          cache: 'gradle'
 
       - name: Installer afhængigheder
-        run: npm install --include=dev # Sikrer at alt bliver installeret
+        run: npm install
 
       - name: Gør gradlew eksekverbar
         run: chmod +x android/gradlew
 
-      - name: SUT MIN FUCKING DUT OG KOM VIDERE FORHELVEDE!
+      - name: FUCK DIG DAV! HAH PRØV IGEN!
         working-directory: android
         run: ./gradlew assembleRelease
 
