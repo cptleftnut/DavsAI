@@ -1,10 +1,8 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, SafeAreaView, KeyboardAvoidingView, Platform } from 'react-native';
-import React, { useState, useEffect } from 'react'; // Husk at importere useEffect
+import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, SafeAreaView, KeyboardAvoidingView, Platform } from 'react-native';
 
-// ... (dine monstre og moodMap) ...
-
+const monsters = {
+// ... (resten af din kode fortsætter herunder)
 export default function App() {
   const [activeMonster, setActiveMonster] = useState('gnist');
   const [currentMood, setCurrentMood] = useState('neutral');
