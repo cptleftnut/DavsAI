@@ -1,17 +1,7 @@
-pluginManagement {
-    includeBuild("../node_modules/@react-native/gradle-plugin")
-}
-
-plugins {
-    id("com.facebook.react.settings")
-}
-
-// Vi bruger navnet "react" i stedet for klassestien for at undgå 'com' fejlen
-extensions.configure("react") {
-    autolinkLibrariesWithApp()
-}
-
 rootProject.name = 'DAVSlm'
+
+apply from: file("../node_modules/@react-native/community-cli-plugin/native_modules.gradle"); 
+applyNativeModulesSettingsGradle(settings)
 
 include ':app'
 includeBuild('../node_modules/@react-native/gradle-plugin')
